@@ -9,7 +9,7 @@
 /**
  * Test if PHP installation contains the required extensions for this script
  *
- * @return boolean (Array with RGB components. False in case of failure)
+ * @return boolean (True on success. False on failure)
  */
 function testphp()
 {
