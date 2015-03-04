@@ -103,8 +103,9 @@ function nfo2png_ttf($nfo_file, $nfo_name, $encoding = 'CP437', $bgcolor = 'FFFF
 	define('NFO_FONT_FILE', './assets/luconP.ttf');
 	define('NFO_FONT_HEIGTH', 10);
 	define('NFO_FONT_WIDTH', 8);
-	define('NFO_FONT_LINE_SPACING', 3);
-	define('NFO_FONT_LINE_HEIGTH', (NFO_FONT_HEIGTH + NFO_FONT_LINE_SPACING));
+	define('NFO_LINE_SPACING', 3);
+	define('NFO_LINE_HEIGTH', (NFO_FONT_HEIGTH + NFO_LINE_SPACING));
+	define('NFO_SIDES_SPACING', 5);
 
 	// Deny files bigger than 1000 KiB (1024000 bytes)
 	if(filesize($nfo_file) > 1024000)
@@ -148,8 +149,8 @@ function nfo2png_ttf($nfo_file, $nfo_name, $encoding = 'CP437', $bgcolor = 'FFFF
 	unset($line);
 
 	// Size of image in pixels
-	$xmax = (NFO_FONT_LINE_SPACING * 2) + (NFO_FONT_WIDTH * $xmax);
-	$ymax = (NFO_FONT_LINE_SPACING * 3) + (NFO_FONT_LINE_HEIGTH * sizeof($nfo));
+	$xmax = (NFO_SIDES_SPACING * 2) + (NFO_FONT_WIDTH * $xmax);
+	$ymax = (NFO_SIDES_SPACING * 2) + (NFO_LINE_HEIGTH * count($nfo));
 
 	// Deny images bigger than 10 million pixels
 	if($xmax * $ymax > 10000000)
@@ -184,17 +185,12 @@ function nfo2png_ttf($nfo_file, $nfo_name, $encoding = 'CP437', $bgcolor = 'FFFF
 	imagefilledrectangle($im, 0, 0, $xmax, $ymax, $bgcolor);
 
 	// Add each line to image
-	foreach($nfo as $y => $line)
+	for($y = 0, $ycnt = count($nfo), $drawy = (NFO_SIDES_SPACING + NFO_LINE_HEIGTH); $y < $ycnt; $y++, $drawy += NFO_LINE_HEIGTH)
 	{
-		// Y Axis
-		$drawy = NFO_FONT_LINE_SPACING + (($y + 1) * NFO_FONT_LINE_HEIGTH);
-		for($x = 0, $sz = mb_strlen($line); $x < $sz; $x++)
+		// Char by char
+		for($x = 0, $xcnt = mb_strlen($nfo[$y]), $drawx = NFO_SIDES_SPACING; $x < $xcnt; $x++, $drawx += NFO_FONT_WIDTH)
 		{
-			// X Axis
-			$drawx = NFO_FONT_LINE_SPACING + ($x * NFO_FONT_WIDTH);
-
-			// Char by char
-			imagettftext($im, NFO_FONT_HEIGTH, 0, $drawx, $drawy, $txtcolor, NFO_FONT_FILE, mb_substr($line, $x, 1));
+			imagettftext($im, NFO_FONT_HEIGTH, 0, $drawx, $drawy, $txtcolor, NFO_FONT_FILE, mb_substr($nfo[$y], $x, 1));
 		}
 	}
 
