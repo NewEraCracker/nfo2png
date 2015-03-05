@@ -258,11 +258,8 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	// Add each line to image
 	for($y = 0, $ycnt = count($nfo), $drawy = (NFO_SIDES_SPACING + NFO_LINE_HEIGTH); $y < $ycnt; $y++, $drawy += NFO_LINE_HEIGTH)
 	{
-		// Char by char
-		for($x = 0, $xcnt = mb_strlen($nfo[$y]), $drawx = NFO_SIDES_SPACING; $x < $xcnt; $x++, $drawx += NFO_FONT_WIDTH)
-		{
-			imagettftext($im, NFO_FONT_HEIGTH, 0, $drawx, $drawy, $txtColor, NFO_FONT_FILE, mb_substr($nfo[$y], $x, 1));
-		}
+		$drawx = NFO_SIDES_SPACING;
+		imagettftext($im, NFO_FONT_HEIGTH, 0, $drawx, $drawy, $txtColor, NFO_FONT_FILE, $nfo[$y]);
 	}
 
 	// Start output buffering
