@@ -32,8 +32,9 @@ function testphp()
 	global $errors;
 
 	// Check GD
-	if($gdinfo = @gd_info())
+	if(function_exists('gd_info'))
 	{
+		$gdinfo = gd_info();
 		if(@(!($gdinfo['PNG Support'] && $gdinfo['FreeType Support'])))
 		{
 			$errors[] = 'Invalid GD configuration, unable to continue! Webmaster must fix this.';
@@ -315,7 +316,11 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 // Run GD tests and check if we are processing a POST request
 if(testphp() && $_SERVER['REQUEST_METHOD'] == 'POST')
 {
-	if(isset($_FILES['nfofile']['tmp_name'], $_FILES['nfofile']['name']))
+	if(isset($_FILES['nfofile']['error']) && $_FILES['nfofile']['error'] != UPLOAD_ERR_OK)
+	{
+		$errors[] = 'There has been an error while uploading the file.';
+	}
+	elseif(isset($_FILES['nfofile']['tmp_name'], $_FILES['nfofile']['name']))
 	{
 		// Inspect requested encoding
 		reset($codepages);
