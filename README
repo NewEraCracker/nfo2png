@@ -1,0 +1,32 @@
+NFO2PNG (NFO to PNG)
+====================
+
+What is NFO2PNG?
+----------------
+NFO2PNG is a free open source implementation to convert an NFO to PNG. Made in
+PHP language using GD image manipulation techniques.
+
+Requirements
+------------
+NFO2PNG works with PHP version 5.2 and higher.
+Requires GD, Iconv and MbString extensions to be installed and enabled in PHP.
+
+Optionally requires Suhosin or Hash to be installed and enabled in PHP to
+create the filename used to store the generated image in the server filesystem.
+
+Quick install
+-------------
+Upload the files to one directory in a server that meets all requirements.
+
+Configuration Options
+---------------------
+$hostDir = '';
+	Default: Empty (Disabled)
+	Directory where to host uploaded images.
+	Only enabled when setting is not empty.
+
+Contact us
+----------
+You can contact us with questions, patches or bugs on GitHub and BitBucket:
+https://github.com/NewEraCracker/nfo2png/issues
+https://bitbucket.org/NewEraCracker/nfo2png/issues
