@@ -182,6 +182,13 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	define('NFO_LINE_HEIGTH', (NFO_FONT_HEIGTH + NFO_LINE_SPACING));
 	define('NFO_SIDES_SPACING', 5);
 
+	// Deny files with invalid size
+	if(filesize($nfoFile) <= 0)
+	{
+		$errors[] = 'File with invalid size, try again with another file!';
+		return false;
+	}
+
 	// Deny files bigger than 1000 KiB (1024000 bytes)
 	if(filesize($nfoFile) > 1024000)
 	{
@@ -194,14 +201,22 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	$xmax = 0;
 	mb_internal_encoding('UTF-8');
 
+	// Perform automatic UTF8-BOM detection
+	$utf8 = false;
+	if(strpos($nfo[0], "\xEF\xBB\xBF") === 0)
+	{
+		$nfo[0] = substr($nfo[0], 3);
+		$utf8   = true;
+	}
+
 	// Reformat each line
 	foreach($nfo as &$line)
 	{
 		// Trim end-of-line
 		$line = rtrim($line);
 
-		// If line is not empty, convert it to UTF8
-		if($line !== '')
+		// Convert it to UTF8 if applicable
+		if($line !== '' && !$utf8)
 		{
 			$line = @iconv($encoding, 'UTF-8', $line);
 
