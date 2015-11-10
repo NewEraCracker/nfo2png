@@ -201,7 +201,7 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	$xmax = 0;
 	mb_internal_encoding('UTF-8');
 
-	// Perform automatic UTF8-BOM detection
+	// Perform automatic UTF-8 BOM detection
 	$utf8 = false;
 	if(strpos($nfo[0], "\xEF\xBB\xBF") === 0)
 	{
@@ -215,7 +215,7 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 		// Trim end-of-line
 		$line = rtrim($line);
 
-		// Convert it to UTF8 if applicable
+		// Convert it to UTF-8 if applicable
 		if($line !== '' && !$utf8)
 		{
 			$line = @iconv($encoding, 'UTF-8', $line);
