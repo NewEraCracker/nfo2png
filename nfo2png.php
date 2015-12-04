@@ -218,6 +218,10 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 		// Convert it to UTF-8 if applicable
 		if($line !== '' && !$utf8)
 		{
+			// Replace NBSP(s) (0xFF) with Space(s) (0x20)
+			$line = str_replace("\xFF", "\x20", $line);
+
+			// Perform conversion
 			$line = @iconv($encoding, 'UTF-8', $line);
 
 			// We make a very strict check here, to be sure of all possibilities
