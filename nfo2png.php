@@ -198,15 +198,22 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 
 	// Initialize
 	$nfo  = file($nfoFile);
+	$utf8 = false;
 	$xmax = 0;
 	mb_internal_encoding('UTF-8');
 
-	// Perform automatic UTF-8 BOM detection
-	$utf8 = false;
+	// Encoding corrections
 	if(strpos($nfo[0], "\xEF\xBB\xBF") === 0)
 	{
+		// UTF-8 detected. Remove BOM.
 		$nfo[0] = substr($nfo[0], 3);
 		$utf8   = true;
+	}
+	elseif(strpos($nfo[0], "\xFF\xFE") === 0 || strpos($nfo[0], "\xFE\xFF") === 0)
+	{
+		// UTF-16 detected. Convert to UTF-8.
+		$nfo  = array_map(create_function('$str', 'return mb_convert_encoding($str, \'UTF-8\', \'UTF-16\');'), $nfo);
+		$utf8 = true;
 	}
 
 	// Reformat each line
