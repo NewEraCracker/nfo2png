@@ -182,69 +182,53 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	define('NFO_LINE_HEIGTH', (NFO_FONT_HEIGTH + NFO_LINE_SPACING));
 	define('NFO_SIDES_SPACING', 5);
 
-	// Deny files with invalid size
-	if(filesize($nfoFile) <= 0)
+	// Deny files with invalid size or bigger than 1000 KiB (1024000 bytes)
+	if(filesize($nfoFile) <= 0 || filesize($nfoFile) > 1024000)
 	{
 		$errors[] = 'File with invalid size, try again with another file!';
 		return false;
 	}
 
-	// Deny files bigger than 1000 KiB (1024000 bytes)
-	if(filesize($nfoFile) > 1024000)
+	// Grab all contents
+	$nfo = file_get_contents($nfoFile);
+
+	// Encoding corrections
+	if(strpos($nfo, "\xEF\xBB\xBF") === 0)
 	{
-		$errors[] = 'File too big, try again with a smaller file!';
+		// UTF-8 - Remove BOM
+		$nfo = substr($nfo, 3);
+	}
+	elseif(strpos($nfo, "\xFF\xFE") === 0 || strpos($nfo, "\xFE\xFF") === 0)
+	{
+		// UTF-16 - Convert to UTF-8
+		$nfo = @mb_convert_encoding($nfo, 'UTF-8', 'UTF-16');
+	}
+	else
+	{
+		// ASCII - Convert to UTF-8
+		$nfo = str_replace("\xFF", "\x20", $nfo);
+		$nfo = @iconv($encoding, 'UTF-8', $nfo);
+	}
+
+	// Strictly check encoding correction for possible failures
+	if($nfo === '' || $nfo === false || $nfo === null)
+	{
+		$errors[] = 'Invalid encoding detected.';
 		return false;
 	}
 
-	// Initialize
-	$nfo  = file($nfoFile);
-	$utf8 = false;
-	$xmax = 0;
-	mb_internal_encoding('UTF-8');
-
-	// Encoding corrections
-	if(strpos($nfo[0], "\xEF\xBB\xBF") === 0)
-	{
-		// UTF-8 detected. Remove BOM.
-		$nfo[0] = substr($nfo[0], 3);
-		$utf8   = true;
-	}
-	elseif(strpos($nfo[0], "\xFF\xFE") === 0 || strpos($nfo[0], "\xFE\xFF") === 0)
-	{
-		// UTF-16 detected. Convert to UTF-8.
-		$nfo  = array_map(create_function('$str', 'return mb_convert_encoding($str, \'UTF-8\', \'UTF-16\');'), $nfo);
-		$utf8 = true;
-	}
-
 	// Reformat each line
-	foreach($nfo as &$line)
+	$nfo  = explode("\n", $nfo);
+	$nfo  = array_map('rtrim', $nfo);
+	$xmax = 0;
+
+	// Calculate maximum line length
+	mb_internal_encoding('UTF-8');
+	foreach($nfo as $line)
 	{
-		// Trim end-of-line
-		$line = rtrim($line);
-
-		// Convert it to UTF-8 if applicable
-		if($line !== '' && !$utf8)
-		{
-			// Replace NBSP(s) (0xFF) with Space(s) (0x20)
-			$line = str_replace("\xFF", "\x20", $line);
-
-			// Perform conversion
-			$line = @iconv($encoding, 'UTF-8', $line);
-
-			// We make a very strict check here, to be sure of all possibilities
-			if($line === '' || $line === false || $line === null)
-			{
-				$errors[] = 'Invalid encoding detected.';
-				return false;
-			}
-		}
-
-		// Calculate maximum line length (UTF-8 ready)
 		if($xmax < mb_strlen($line))
 			$xmax = mb_strlen($line);
 	}
-	// Reference must be unset
-	unset($line);
 
 	// Size of image in pixels
 	$xmax = (NFO_SIDES_SPACING * 2) + (NFO_FONT_WIDTH * $xmax);
