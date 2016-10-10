@@ -54,13 +54,6 @@ function testphp()
 		return false;
 	}
 
-	// Check for MultiByte String
-	if(!extension_loaded('mbstring'))
-	{
-		$errors[] = 'PHP extension MultiByte String is not installed, unable to continue! Webmaster must fix this.';
-		return false;
-	}
-
 	// YAY !
 	return true;
 }
@@ -201,7 +194,7 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	elseif(strpos($nfo, "\xFF\xFE") === 0 || strpos($nfo, "\xFE\xFF") === 0)
 	{
 		// UTF-16 - Convert to UTF-8
-		$nfo = @mb_convert_encoding($nfo, 'UTF-8', 'UTF-16');
+		$nfo = @iconv('UTF-16', 'UTF-8', $nfo);
 	}
 	else
 	{
@@ -223,11 +216,10 @@ function nfo2png_ttf($nfoFile, $nfoName, $encoding = 'CP437', $bgColor = 'FFFFFF
 	$xmax = 0;
 
 	// Calculate maximum line length
-	mb_internal_encoding('UTF-8');
 	foreach($nfo as $line)
 	{
-		if($xmax < mb_strlen($line))
-			$xmax = mb_strlen($line);
+		if($xmax < iconv_strlen($line, 'UTF-8'))
+			$xmax = iconv_strlen($line, 'UTF-8');
 	}
 
 	// Size of image in pixels
